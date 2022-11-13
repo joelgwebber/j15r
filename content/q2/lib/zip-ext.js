@@ -66,7 +66,7 @@
 		function init(callback, onerror) {
 			var request = new XMLHttpRequest();
 			request.addEventListener("load", function() {
-				that.size = Number(request.getResponseHeader("Content-Length"));
+				// that.size = Number(request.getResponseHeader("Content-Length"));
 				callback();
 			}, false);
 			request.addEventListener("error", onerror, false);

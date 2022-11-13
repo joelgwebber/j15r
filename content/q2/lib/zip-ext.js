@@ -50,8 +50,9 @@
 				request = new XMLHttpRequest();
 				request.addEventListener("load", function() {
 					// (jgw - this is broken if the response was compressed) if (!that.size)
-						that.size = Number(request.getResponseHeader("Content-Length"));
+					//	that.size = Number(request.getResponseHeader("Content-Length"));
 					that.data = new Uint8Array(request.response);
+          that.size = that.data.length;
 					callback();
 				}, false);
 				request.addEventListener("error", onerror, false);

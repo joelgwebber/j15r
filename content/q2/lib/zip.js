@@ -575,7 +575,8 @@
 		function seekEOCDR(offset, entriesCallback) {
 			reader.readUint8Array(reader.size - offset, offset, function(bytes) {
 				var dataView = getDataHelper(bytes.length, bytes).view;
-				if (dataView.getUint32(0) != 0x504b0506) {
+        var tag = dataView.getUint32(0);
+				if (tag != 0x504b0506) {
 					seekEOCDR(offset + 1, entriesCallback);
 				} else {
 					entriesCallback(dataView);

@@ -52,7 +52,7 @@ off-screen on one end and placing them down on the other end. The effect is
 kind of like laying track for a train by picking up track from behind it.
 
 <center>
-  <img src="http://photos1.blogger.com/x/blogger/7678/661/320/219085/Tiles.png"/>
+  <img src="tiles.png"/>
 
   *Google map, with tiles outlined*
 </center>
@@ -67,7 +67,7 @@ overlaid route image (at the end of the article), which is often as big as the
 entire map view.
 
 <center>
-  <img src="http://photos1.blogger.com/x/blogger/7678/661/320/239629/Pin.gif"/>
+  <img src="pin.gif"/>
 
   *The pushpin, with its two images outlined*
 </center>
@@ -236,7 +236,7 @@ a URL like so:
     http://www.google.com/maplinedraw?width=324&height=564&path=sRS?k@fB@?}As@e@CGAIA}@BwCEu@Bs@?E_@cACS@a@PaC ...
 
 <center>
-  <img src="http://photos1.blogger.com/x/blogger/7678/661/320/118745/Route.png"/>
+  <img src="route.png"/>
 
   *The route overlay*
 </center>

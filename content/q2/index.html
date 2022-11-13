@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Quake II Demo</title>
+    <style>
+      header {
+        position: fixed;
+        background-color: black;
+        height: 128px;
+        padding: 16px 16px 16px 150px;
+        font-family: monospace;
+        background-image: url(/projects/quake2/featured.png);
+        background-position: left;
+        background-repeat: no-repeat;
+        background-size: 128px;
+      }
+    </style>
+  </head>
+
+  <body style="background-color:#000;color:#ddd;border:0;margin:0;padding:0">
+    <div id="splash" style="margin:20px">
+      <header>
+        Quake II Demo.
+        <br><br>
+        This currently works only in Google Chrome. Please see <a href="/projects/quake2">this article</a> for an explanation.
+      </header>
+
+      <pre id="log"></pre>
+      <div id="log-bottom"></div>
+    </div>
+
+    <div style="margin-left: auto; margin-right: auto; width:800px;height:500px;visibility:hidden" id='playn-root'></div>
+
+    <script src="lib/idb.filesystem.js"></script>
+    <script src="lib/zip.js"></script>
+    <script src="lib/zip-ext.js"></script>
+    <script src="lib/inflate.js"></script>
+    <script src="download.js"></script>
+    <script src="PlayNQuake/PlayNQuake.nocache.js"></script>
+    <script>downloadAndUnpack('q2-314-demo-x86.exe')</script>
+  </body>
+</html>

@@ -49,8 +49,9 @@
 			if (!that.data) {
 				request = new XMLHttpRequest();
 				request.addEventListener("load", function() {
-					// (jgw - this is broken if the response was compressed) if (!that.size)
-					//	that.size = Number(request.getResponseHeader("Content-Length"));
+          // (jgw) See below -- content-length is not always the data length.
+					// if (!that.size)
+					//   that.size = Number(request.getResponseHeader("Content-Length"));
 					that.data = new Uint8Array(request.response);
           that.size = that.data.length;
 					callback();
@@ -64,14 +65,18 @@
 		}
 
 		function init(callback, onerror) {
-			var request = new XMLHttpRequest();
-			request.addEventListener("load", function() {
-				// that.size = Number(request.getResponseHeader("Content-Length"));
-				callback();
-			}, false);
-			request.addEventListener("error", onerror, false);
-			request.open("HEAD", url);
-			request.send();
+      // (jgw) Just get the data. The HEAD code below assumes that the size can be
+      // read from the content-length response header, but this is incorrect if the
+      // data is recompressed.
+      getData(callback, onerror);
+			// var request = new XMLHttpRequest();
+			// request.addEventListener("load", function() {
+			// 	that.size = Number(request.getResponseHeader("Content-Length"));
+			// 	callback();
+			// }, false);
+			// request.addEventListener("error", onerror, false);
+			// request.open("HEAD", url);
+			// request.send();
 		}
 
 		function readUint8Array(index, length, callback, onerror) {

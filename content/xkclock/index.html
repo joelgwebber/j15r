@@ -138,5 +138,16 @@
     setInterval(render, 60000);
     render();
   </script>
+
+  <script>
+    var _fs_debug = false, _fs_host = 'staging.fullstory.com', _fs_org = 'j15r.com';
+    (function (m, n, e, t, l, o, g, y) {
+      g = m[e] = function (a, b) {g.q ? g.q.push([a, b]) : g._api(a, b);};
+      g.q = [];o = n.createElement(t);o.async = 1;o.src = 'https://' + _fs_host + '/s/fs.js';
+      y = n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o, y);
+      g.identify = function (i, v) {g(l, {uid: i});if (v) g(l, v)};
+      g.setUserVars = function (v) {FS(l, v)};
+    })(window, document, 'FS', 'script', 'user');
+  </script>
 </body>
 </html>

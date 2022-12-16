@@ -21,7 +21,7 @@ dateFormat = "2 January 2006"
   links = [
 		{ email = "mailto:jgw@pobox.com" },
 		{ github = "https://github.com/joelgwebber" },
-		{ mastodon = "https://mastodon.j15r.com/@j15r" },
+		{ mastodon = "https://hachyderm.io/@j15r" },
 
   #   { link = "https://link-to-some-website.com/" },
   #   { amazon = "https://www.amazon.com/hz/wishlist/ls/wishlist-id" },

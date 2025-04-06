@@ -10,7 +10,7 @@ title = "JoelgraysonwebbeR"
 # description = "About me"
 # copyright = ""
 
-dateFormat = "2 January 2006"
+dateFormat = "1 January 1970"
 
 [author]
   name = "Joel Webber"
@@ -22,6 +22,7 @@ dateFormat = "2 January 2006"
 		{ email = "mailto:jgw@pobox.com" },
 		{ github = "https://github.com/joelgwebber" },
 		{ mastodon = "https://hachyderm.io/@j15r" },
+		{ bluesky = "https://bsky.app/profile/j15r.com" },
 
   #   { link = "https://link-to-some-website.com/" },
   #   { amazon = "https://www.amazon.com/hz/wishlist/ls/wishlist-id" },

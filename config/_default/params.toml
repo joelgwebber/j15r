@@ -15,6 +15,9 @@ enableCodeCopy = true
 mainSections = ["projects"]
 # robots = ""
 
+# Needed to properly generate images
+disableImageOptimization = false
+
 [header]
   layout = "fixed" # valid options: basic, fixed
 
@@ -26,14 +29,14 @@ mainSections = ["projects"]
   showScrollToTop = false
 
 [homepage]
-  layout = "background" # valid options: page, profile, hero, card, background, custom
-  homepageImage = "/img/nyc.jpg" # used in: hero, and card
-  showRecent = false
+  layout = "card" # valid options: page, profile, hero, card, background, custom
+  homepageImage = "/img/author.jpg" # used in: hero, and card
+  showRecent = true
   showRecentItems = 3
-  showMoreLink = false
+  showMoreLink = true
   showMoreLinkDest = "/projects"
   cardView = true
-  cardViewScreenWidth = true
+  cardViewScreenWidth = false
   layoutBackgroundBlur = true # only used when layout equals background
 
 [article]

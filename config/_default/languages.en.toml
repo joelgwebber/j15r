@@ -14,8 +14,8 @@ dateFormat = "1 January 1970"
 
 [author]
   name = "Joel Webber"
-  image = "img/author.jpg"
-  headline = ""
+  image = "img/j15r.png"
+  headline = "Engineer, drummer, cofounder @fullstory.com, occasional game developer."
   # bio = "Test bio stuff..."
 
   links = [

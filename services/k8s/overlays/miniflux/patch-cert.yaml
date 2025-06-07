@@ -1,0 +1,7 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: miniflux-cert
+spec:
+  domains:
+    - flux.j15r.com

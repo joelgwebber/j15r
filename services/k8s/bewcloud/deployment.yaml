@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bewcloud-deployment
+spec:
+  selector:
+    matchLabels:
+      app: bewcloud
+  template:
+    metadata:
+      labels:
+        app: bewcloud
+    spec:
+      initContainers:
+      - name: fix-permissions
+        image: busybox
+        command: ['sh', '-c', 'chown -R 1993:1993 /app/data-files']
+        volumeMounts:
+        - name: bewcloud-data
+          mountPath: /app/data-files
+      containers:
+      - env:
+        - name: POSTGRESQL_HOST
+          value: "127.0.0.1"
+        - name: POSTGRESQL_PORT
+          value: "5432"
+        - name: POSTGRESQL_USER
+          value: "postgres"
+        - name: POSTGRESQL_PASSWORD
+          value: "2P3o5s8t"
+        - name: POSTGRESQL_DBNAME
+          value: "bewcloud"
+        - name: JWT_SECRET
+          value: "your-secret-jwt-key-replace-in-production"
+        - name: PASSWORD_SALT
+          value: "your-secret-salt-replace-in-production"
+        image: ghcr.io/bewcloud/bewcloud:v2.2.3
+        name: bewcloud
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - mountPath: /app/data-files
+          name: bewcloud-data
+        - mountPath: /app/bewcloud.config.ts
+          name: bewcloud-config
+          subPath: bewcloud.config.ts
+      - command:
+        - /cloud_sql_proxy
+        - -dir=/cloudsql
+        - -instances=j15rpersonal:us-central1:j15r-db=tcp:5432
+        - -credential_file=/secrets/cloudsql/credentials.json
+        image: gcr.io/cloudsql-docker/gce-proxy:1.33.14
+        name: cloudsql-proxy
+        volumeMounts:
+        - mountPath: /secrets/cloudsql
+          name: cloudsql-instance-credentials
+          readOnly: true
+      volumes:
+      - name: cloudsql-instance-credentials
+        secret:
+          secretName: cloudsql-instance-credentials
+      - name: bewcloud-data
+        persistentVolumeClaim:
+          claimName: bewcloud-pvc
+      - name: bewcloud-config
+        configMap:
+          name: bewcloud-config

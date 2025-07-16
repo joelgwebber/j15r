@@ -14,6 +14,7 @@ This directory contains Kubernetes deployments for self-hosted services running 
 ### Current Services
 - **Miniflux**: RSS feed reader at https://flux.j15r.com
 - **Readeck**: Read-it-later service at https://read.j15r.com
+- **Bewcloud**: Personal cloud storage at https://cloud.j15r.com
 
 ### Common Architecture Pattern
 1. **Database**: Cloud SQL PostgreSQL instance (`j15r-db`)
@@ -21,6 +22,7 @@ This directory contains Kubernetes deployments for self-hosted services running 
 3. **Storage**: 
    - Miniflux: Stateless (all data in PostgreSQL)
    - Readeck: Persistent volume for bookmark archives
+   - Bewcloud: Persistent volume for user files (20GB)
 4. **Ingress**: GKE managed ingress with SSL certificates
 5. **Health Checks**: Backend configs for proper load balancer health monitoring
 
@@ -31,6 +33,7 @@ This directory contains Kubernetes deployments for self-hosted services running 
 # Deploy a specific service
 make deploy-miniflux
 make deploy-readeck
+make deploy-bewcloud
 
 # Deploy all services
 make deploy-all
@@ -38,6 +41,7 @@ make deploy-all
 # Restart a service (rolling update)
 make restart-miniflux
 make restart-readeck
+make restart-bewcloud
 ```
 
 ### Manual kubectl Commands
@@ -182,3 +186,57 @@ kubectl exec -it <pod-name> -- /bin/sh
 - Cloud SQL uses private IP with proxy authentication
 - All services use HTTPS with managed certificates
 - Ingress handles SSL termination
+
+## Service-Specific Notes
+
+### Bewcloud
+Bewcloud is a personal cloud storage solution with file management, notes, and photos capabilities.
+
+#### Initial Setup
+1. Create database: `CREATE DATABASE bewcloud;`
+2. Deploy the service: `make deploy-bewcloud`
+3. Run database migrations:
+   ```bash
+   POD=$(kubectl get pods -l app=bewcloud -o name | head -1 | cut -d/ -f2)
+   kubectl exec $POD -c bewcloud -- bash -c "cd /app && make migrate-db"
+   ```
+
+#### Configuration
+- Uses different environment variables than standard: `POSTGRESQL_*` instead of `POSTGRES_*`
+- Requires `JWT_SECRET` and `PASSWORD_SALT` for authentication
+- Config file mounted via ConfigMap at `/app/bewcloud.config.ts`
+- Health check endpoint: `/login` (returns 200)
+
+#### Storage Management
+- User files stored in `/app/data-files/` 
+- 20GB persistent volume attached
+- Init container sets proper permissions (uid/gid 1993 for deno user)
+- Directory structure: `/app/data-files/{user-uuid}/{Files,Notes,Photos,.Trash}/`
+
+#### Common Issues
+1. **Permission errors on file operations**
+   - Solution: Init container runs `chown -R 1993:1993 /app/data-files`
+   
+2. **Database connection errors**
+   - Check env vars: `POSTGRESQL_HOST`, `POSTGRESQL_USER`, `POSTGRESQL_PASSWORD`, `POSTGRESQL_DBNAME`
+   - Ensure database exists and migrations are run
+
+3. **502 errors on ingress**
+   - Health check uses `/login` endpoint (not `/`)
+   - Root path returns 303 redirect which was causing health check failures
+
+#### Maintenance Commands
+```bash
+# Check logs
+kubectl logs -l app=bewcloud -c bewcloud --tail=50
+
+# Run database migrations
+POD=$(kubectl get pods -l app=bewcloud -o name | head -1 | cut -d/ -f2)
+kubectl exec $POD -c bewcloud -- bash -c "cd /app && make migrate-db"
+
+# Check disk usage
+kubectl exec -it $POD -c bewcloud -- df -h /app/data-files
+
+# Access shell for troubleshooting
+kubectl exec -it $POD -c bewcloud -- bash
+```

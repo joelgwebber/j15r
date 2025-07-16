@@ -1,0 +1,28 @@
+# Example: Using GCP Filestore for shared storage across multiple pods
+# Only needed if you plan to run multiple readeck replicas
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: readeck-filestore-pv
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /readeck_share  # Path on Filestore instance
+    server: 10.10.10.10   # Replace with your Filestore IP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: readeck-filestore-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""  # Empty for manual binding
+  volumeName: readeck-filestore-pv
+  resources:
+    requests:
+      storage: 100Gi

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: readeck-service
+  annotations:
+    cloud.google.com/backend-config: '{"default": "readeck-backend-config"}'
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8000
+  selector:
+    app: readeck
+  type: NodePort

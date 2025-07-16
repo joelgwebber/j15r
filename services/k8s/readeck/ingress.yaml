@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    networking.gke.io/frontend-config: readeck-default-frontend-config
+    networking.gke.io/managed-certificates: readeck-cert
+  name: readeck-ingress
+spec:
+  rules:
+  - host: read.j15r.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: readeck-service
+            port:
+              number: 80
+        path: /
+        pathType: Prefix

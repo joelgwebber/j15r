@@ -1,0 +1,6 @@
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: readeck-default-frontend-config
+spec:
+  sslPolicy: modern

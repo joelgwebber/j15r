@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: readeck-deployment
+spec:
+  selector:
+    matchLabels:
+      app: readeck
+  template:
+    metadata:
+      labels:
+        app: readeck
+    spec:
+      containers:
+      - env:
+        - name: READECK_DATABASE_SOURCE
+          value: postgres://postgres:2P3o5s8t@127.0.0.1:5432/readeck?sslmode=disable
+        - name: READECK_SERVER_HOST
+          value: "0.0.0.0"
+        - name: READECK_SERVER_PORT
+          value: "8000"
+        - name: READECK_LOG_LEVEL
+          value: "info"
+        image: codeberg.org/readeck/readeck:latest
+        name: readeck
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - mountPath: /readeck
+          name: readeck-data
+      - command:
+        - /cloud_sql_proxy
+        - -dir=/cloudsql
+        - -instances=j15rpersonal:us-central1:j15r-db=tcp:5432
+        - -credential_file=/secrets/cloudsql/credentials.json
+        image: gcr.io/cloudsql-docker/gce-proxy:1.33.14
+        name: cloudsql-proxy
+        volumeMounts:
+        - mountPath: /secrets/cloudsql
+          name: cloudsql-instance-credentials
+          readOnly: true
+      volumes:
+      - name: cloudsql-instance-credentials
+        secret:
+          secretName: cloudsql-instance-credentials
+      - name: readeck-data
+        emptyDir: {}

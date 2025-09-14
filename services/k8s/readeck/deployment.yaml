@@ -31,7 +31,7 @@ spec:
       - command:
         - /cloud_sql_proxy
         - -dir=/cloudsql
-        - -instances=j15rpersonal:us-central1:j15r-db=tcp:5432
+        - -instances=j15rpersonal:us-central1:j15r-db-new=tcp:5432
         - -credential_file=/secrets/cloudsql/credentials.json
         image: gcr.io/cloudsql-docker/gce-proxy:1.33.14
         name: cloudsql-proxy

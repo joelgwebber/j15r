@@ -1,6 +1,6 @@
 PROJECT_ID = j15rpersonal
 REGISTRY = gcr.io/$(PROJECT_ID)
-SERVICES = miniflux readeck bewcloud
+SERVICES = miniflux readeck bewcloud seafile
 KUSTOMIZE_DIR = k8s/overlays
 DOCKER_DIR = .
 

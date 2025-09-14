@@ -1,7 +1,7 @@
 apiVersion: networking.gke.io/v1
 kind: ManagedCertificate
 metadata:
-  name: bewcloud-cert
+  name: seafile-cert
 spec:
   domains:
-    - cloud.j15r.com
+    - files.j15r.com

@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seafile-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: seafile
+  template:
+    metadata:
+      labels:
+        app: seafile
+    spec:
+      containers:
+      - name: seafile
+        image: seafileltd/seafile-mc:11.0-latest
+        env:
+        - name: DB_HOST
+          value: "127.0.0.1"
+        - name: DB_ROOT_PASSWD
+          value: "SeafileDB2024!"
+        - name: MYSQL_ROOT_PASSWORD
+          value: "SeafileDB2024!"
+        - name: SEAFILE_ADMIN_EMAIL
+          value: "admin@j15r.com"
+        - name: SEAFILE_ADMIN_PASSWORD
+          value: "SeafileAdmin2024!"
+        - name: SEAFILE_SERVER_HOSTNAME
+          value: "files.j15r.com"
+        - name: TIME_ZONE
+          value: "America/Chicago"
+        - name: SEAFILE_SERVER_LETSENCRYPT
+          value: "false"
+        - name: NON_ROOT
+          value: "false"
+        - name: FORCE_HTTPS_IN_CONF
+          value: "false"
+        ports:
+        - containerPort: 80
+          name: http
+        - containerPort: 8082
+          name: fileserver
+        volumeMounts:
+        - name: seafile-data
+          mountPath: /shared
+        livenessProbe:
+          httpGet:
+            path: /accounts/login/
+            port: 80
+          initialDelaySeconds: 180
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /accounts/login/
+            port: 80
+          initialDelaySeconds: 90
+          periodSeconds: 10
+          timeoutSeconds: 5
+      - name: mariadb
+        image: mariadb:10.11
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "SeafileDB2024!"
+        - name: MYSQL_DATABASE
+          value: "seafile_db"
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: seafile-data
+          mountPath: /var/lib/mysql
+          subPath: mysql-data
+      - name: memcached
+        image: memcached:1.6-alpine
+        command: ["memcached", "-m", "256"]
+        ports:
+        - containerPort: 11211
+          name: memcached
+      volumes:
+      - name: seafile-data
+        persistentVolumeClaim:
+          claimName: seafile-pvc

@@ -1,12 +1,10 @@
 apiVersion: cloud.google.com/v1
 kind: BackendConfig
 metadata:
-  name: bewcloud-backend-config
+  name: seafile-backend-config
 spec:
   healthCheck:
     checkIntervalSec: 10
     timeoutSec: 5
-    healthyThreshold: 2
-    unhealthyThreshold: 3
     type: HTTP
-    requestPath: /login
+    requestPath: /accounts/login/

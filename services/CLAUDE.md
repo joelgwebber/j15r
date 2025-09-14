@@ -15,14 +15,16 @@ This directory contains Kubernetes deployments for self-hosted services running 
 - **Miniflux**: RSS feed reader at https://flux.j15r.com
 - **Readeck**: Read-it-later service at https://read.j15r.com
 - **Bewcloud**: Personal cloud storage at https://cloud.j15r.com
+- **Seafile**: File sync and share platform at https://files.j15r.com
 
 ### Common Architecture Pattern
 1. **Database**: Cloud SQL PostgreSQL instance (`j15r-db`)
 2. **Proxy**: Cloud SQL Proxy sidecar container for secure DB access
-3. **Storage**: 
+3. **Storage**:
    - Miniflux: Stateless (all data in PostgreSQL)
    - Readeck: Persistent volume for bookmark archives
    - Bewcloud: Persistent volume for user files (20GB)
+   - Seafile: Persistent volume for file storage (50GB)
 4. **Ingress**: GKE managed ingress with SSL certificates
 5. **Health Checks**: Backend configs for proper load balancer health monitoring
 
@@ -34,6 +36,7 @@ This directory contains Kubernetes deployments for self-hosted services running 
 make deploy-miniflux
 make deploy-readeck
 make deploy-bewcloud
+make deploy-seafile
 
 # Deploy all services
 make deploy-all
@@ -42,6 +45,7 @@ make deploy-all
 make restart-miniflux
 make restart-readeck
 make restart-bewcloud
+make restart-seafile
 ```
 
 ### Manual kubectl Commands
@@ -239,4 +243,104 @@ kubectl exec -it $POD -c bewcloud -- df -h /app/data-files
 
 # Access shell for troubleshooting
 kubectl exec -it $POD -c bewcloud -- bash
+```
+
+### Seafile
+Seafile is a file sync and share platform with desktop and mobile clients, similar to Dropbox but self-hosted.
+
+#### Initial Setup
+1. **Deploy the service** (uses Cloud SQL MySQL):
+   ```bash
+   make deploy-seafile
+   ```
+
+   Note: Seafile uses a Cloud SQL MySQL instance (`j15r-mysql`) for its database backend. Connection is handled via Cloud SQL Proxy sidecar container.
+
+2. **Reserve static IP** (if not already done):
+   ```bash
+   gcloud compute addresses create seafile-ip --global
+   ```
+
+3. **Update DNS**:
+   - Add A record for `files.j15r.com` pointing to the reserved IP
+   - Wait for DNS propagation and SSL certificate provisioning (can take 15-30 minutes)
+
+#### Configuration
+- **Admin credentials**: Set via `SEAFILE_ADMIN_EMAIL` and `SEAFILE_ADMIN_PASSWORD` environment variables
+- **Storage**: 50GB persistent volume for file data at `/shared`
+- **Database**: Cloud SQL MySQL instance (`j15r-mysql`)
+- **Components**:
+  - Seafile server (file sync engine)
+  - Seahub (web interface)
+  - Cloud SQL Proxy (database connection)
+  - Memcached (caching layer)
+- **Ports**:
+  - Port 80: Web interface (Seahub)
+  - Port 8082: Seafile fileserver (internal)
+- **Health checks**: Root path `/` returns 200 when ready
+
+#### Features
+- **File synchronization**: Real-time sync across devices with desktop/mobile clients
+- **Selective sync**: Choose which folders to sync on each device
+- **File versioning**: Automatic version history for all files
+- **Sharing**: Share files/folders with links or other users
+- **Library-based organization**: Separate libraries for different projects/purposes
+- **Block-level deduplication**: Efficient storage using content-defined chunking
+- **Delta sync**: Only sync changed parts of files
+
+#### Client Setup
+1. **Download clients**:
+   - Desktop: https://www.seafile.com/en/download/
+   - Mobile: Available on App Store and Google Play
+
+2. **Server configuration**:
+   - Server URL: `https://files.j15r.com`
+   - Login with admin credentials
+
+3. **Selective sync** (Desktop):
+   - Right-click on library → "Sync this library"
+   - Choose local folder
+   - Select sub-folders to sync or use "Selective Sync"
+
+#### Common Issues
+1. **Database connection errors**:
+   - Uses Cloud SQL MySQL via proxy sidecar
+   - Ensure Cloud SQL Proxy is running: `kubectl logs -l app=seafile -c cloudsql-proxy --tail=20`
+   - Database user `seafile` must exist with proper permissions
+
+2. **File upload failures**:
+   - Check persistent volume has sufficient space: `kubectl exec -it <pod> -- df -h /shared`
+   - Verify nginx client_max_body_size if behind additional proxy
+
+3. **Sync client connection issues**:
+   - Ensure fileserver port (8082) is accessible internally
+   - Check that `SEAFILE_SERVER_HOSTNAME` matches the public domain
+
+#### Maintenance Commands
+```bash
+# Check logs
+kubectl logs -l app=seafile -c seafile --tail=50
+
+# Access Seafile shell
+POD=$(kubectl get pods -l app=seafile -o name | head -1 | cut -d/ -f2)
+kubectl exec -it $POD -c seafile -- bash
+
+# Check storage usage
+kubectl exec $POD -c seafile -- df -h /shared
+
+# View Seafile server status
+kubectl exec $POD -c seafile -- /opt/seafile/seafile-server-latest/seafile.sh status
+
+# Garbage collection (clean deleted files)
+kubectl exec $POD -c seafile -- /opt/seafile/seafile-server-latest/seaf-gc.sh
+
+# Check memcached status
+kubectl logs -l app=seafile -c memcached --tail=20
+
+# Check Cloud SQL Proxy status
+kubectl logs -l app=seafile -c cloudsql-proxy --tail=20
+
+# Database operations via Cloud SQL
+gcloud sql databases list --instance=j15r-mysql
+gcloud sql backups list --instance=j15r-mysql
 ```

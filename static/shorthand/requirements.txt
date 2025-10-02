@@ -1,0 +1,2 @@
+# FontForge Python bindings are installed system-wide
+# This file is here for any additional dependencies

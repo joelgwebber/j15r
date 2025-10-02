@@ -15,6 +15,8 @@ Chrome. It was a much simpler game, but it's also worth noting that shiny new
 browser features like WebGL weren't widely available yet, so we had to find a
 way to make it work across the browsers commonly found in the real world.
 
+![angry birds Google I/O keynote](./abkeynote.png)
+
 This meant creating an abstraction layer across all of WebGL, `<canvas>`, and
 even simple HTML `<image>` elements with affine transforms, which turned out to
 dramatically outperform canvas on some browsers at the time. The result was a
